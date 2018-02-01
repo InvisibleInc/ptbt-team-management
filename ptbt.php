@@ -184,7 +184,7 @@ Text Domain: pick-the-best-team
 		
 	}
 	
-	/* !8. Create a new enclosing shortcode,eg make someting private based on is user logged in */
+	/* !8. Create a new enclosing shortcode,eg make something private based on is user logged in */
 	add_shortcode( 'private', 'ptbt_private_shortcode' );
 	
 	function ptbt_private_shortcode( $atts, $content = null ) {

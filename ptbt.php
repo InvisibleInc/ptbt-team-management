@@ -162,7 +162,7 @@ Text Domain: pick-the-best-team
 		
 		extract( shortcode_atts( array( 
 			
-			'user_name' => 'ylefebvre' 
+			'user_name' => 'RKL15' 
 			
 		), $atts ) );
 		
@@ -203,5 +203,14 @@ Text Domain: pick-the-best-team
 			return $output2;
 			
 		}
+		
+	}
+	
+	/* !9. Add a stylesheet */
+	add_action( 'wp_enqueue_scripts', 'ptbt_add_css' );
+	
+	function ptbt_add_css() {
+		
+		wp_enqueue_style( 'privateshortcodestyle', plugins_url( 'awesomestylesheet.css', __FILE__ ) );
 		
 	}

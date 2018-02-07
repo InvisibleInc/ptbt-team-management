@@ -41,7 +41,7 @@ function team_init(){
 		"hierarchical" 			=> false,
 		"rewrite" 				=> array( "slug" => "teams", "with_front" => true ),
 		"query_var" 			=> true,
-		"supports" 				=> array( "title", "thumbnail" ),
+		"supports" 				=> array( "title", "editor", "thumbnail" ),
 		"taxonomies" 			=> array( "category", "post_tag" )
 	);
 

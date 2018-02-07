@@ -12,8 +12,12 @@
 		wp_register_style( 
 			'ptbt_bootstrap', plugins_url( '/assets/styles/bootstrap.css', TEAM_PLUGIN_URL)
 		);
+		wp_register_style( 
+			'ptbt_admin_css', plugins_url( '/assets/styles/ptbt_admin_css.css', TEAM_PLUGIN_URL)
+		);
 		
 		// Set to only load on the custom post type - teams
 		wp_enqueue_style( 'ptbt_bootstrap' );
+		wp_enqueue_style( 'ptbt_admin_css' );
 		
 	}

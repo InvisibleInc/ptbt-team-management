@@ -81,10 +81,13 @@ Text Domain: pick-the-best-team
 	include( 'includes/init.php' ); // add CPTs
 	// Include admin init file, used to define metaboxes, etc
 	include( 'includes/admin/init.php' );
+	// Include file to save team post
+	include( 'includes/process/save-post.php' );
+	// Include filter-content file
+	include( 'includes/process/filter-content.php' );
 	
 	
 	// HOOKS
-	
 	// register activation - need to better understand this hook
 	register_activation_hook( __FILE__, 'ptbt_management_activate_plugin' );
 	// Add action hook called init - triggered when WP initialised the data required for the current page and it should be used to set up the plugin
@@ -93,8 +96,10 @@ Text Domain: pick-the-best-team
 	add_action( 'init', 'team_init' );
 	// Hook into when WP initialises the admin to define metaboxesadd metabox when WP initises the admin - in this example call the function team_admin_init - define function in /admin/init.php and include
 	add_action( 'admin_init', 'team_admin_init' );
-	// Add action Hook to save post
-	add_action( 'save_post_team', 'r_save_post_admin', 10, 3 );
+	// Add action Hook to save post - Create file in the process folder to set up save post
+	add_action( 'save_post_teams', 'r_save_post_admin', 10, 3 );
+	// Add filter Hook to alter the content
+	add_filter( 'the_content', 'r_filter_team_content' );
 	
 	
 	// SHORTCODES

@@ -12,9 +12,37 @@ License URi: https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: pick-the-best-team
 */
 
+
+/*
+	// Add filter structure
+	// add_filter( 'fitler hook', 'function name' );
+	add_filter ( 'the_title', 'ptbt_title' );
+	
+	// write function - $title is a wordpress variable
+	function ptbt_title( $title ){
+		
+		return 'This is an add filter hook: ' . $title;
+		
+	}
+	
+	// Add action structure
+	// add_action( 'wp_footer', 'ptbt_footer_shoutout' );
+	
+	// write function - this echos text to footer
+	function ptbt_footer_shoutout() {
+		
+		echo "Hooked example.";
+		
+	}
+		
+*/
+
+
 /* ! 0. TABLE OF CONTENTS */
 
 /*
+	01. Activation and security
+	
 	1. Add something to page_headers
 	
 	2. Add favicon feature
@@ -31,186 +59,47 @@ Text Domain: pick-the-best-team
 	
 	8. Create a new enclosing shortcode
 	
+	9. Add a stylesheet
+	
 */
 
-	/* !1. Add something to page_headers  */
+	/* !01. Activation and security  */
+	// Make sure we dont expose any info if called directly
+	//if( !function_exists( 'add_action' ) ) {
+		
+	//	die( "Hi there! I'm just a plugin, not much I can do when called directly.");
+		
+	//}
 	
-	// For example this is useful for adding scripts, stylesheets
-	add_action( 'wp_head', 'ptbt_add_something_to_header');
 	
-	function ptbt_add_something_to_header() { ?>
-		
-		<script>wp</script>
-		
-	<?php }
-		
-		
-	/* !2. Add favicon feature */
+	// SETUP
+	// Create a CONSTANT for the plugin URL
+	define( 'TEAM_PLUGIN_URL', __FILE__ );
 	
-	// Favicon Feature
-	add_action( 'wp_head', 'ptbt_add_favicon' );
+	// INCLUDES
+	include( 'includes/activate.php' ); // activation and secure
+	include( 'includes/init.php' ); // add CPTs
+	// Include admin init file, used to define metaboxes, etc
+	include( 'includes/admin/init.php' );
 	
-	function ptbt_add_favicon() {
-		
-		$site_icon_url = get_site_icon_url();
-		
-			if( !empty( $site_icon_url ) ) {
-				
-				wp_site_icon();
-				
-			} else {
-				// path to favicon
-				$icon_url = plugins_url( 'favicon.ico', __FILE__ );
-				
-			?>
-			
-			<link rel="shortcut icon" href="<?php echo $icon_url; ?>" />
-			
-			<?php }
-		
-	}
 	
-	/* !3. Modify Site Generator meta tag */
+	// HOOKS
 	
-	// Using add_filter to modify the generator meta tag
+	// register activation - need to better understand this hook
+	register_activation_hook( __FILE__, 'ptbt_management_activate_plugin' );
+	// Add action hook called init - triggered when WP initialised the data required for the current page and it should be used to set up the plugin
+	// The function we want ot call is called team_init - this is where we should set up our custom post
+	// See inside init.php in the includes folder
+	add_action( 'init', 'team_init' );
+	// Hook into when WP initialises the admin to define metaboxesadd metabox when WP initises the admin - in this example call the function team_admin_init - define function in /admin/init.php and include
+	add_action( 'admin_init', 'team_admin_init' );
+	// Add action Hook to save post
+	add_action( 'save_post_team', 'r_save_post_admin', 10, 3 );
 	
-	// Doesn't seem to work for some reason
-	add_filter( 'the_generator', 'ptbt_generator_filter', 10, 2 );
 	
-	function ptbt_generator_filter ( $html, $type ) {
-		
-		if ( $type == 'xhtml' ) {
-			
-			$html = preg_replace( '("Wordpress.*?")', '"Robert Lee"', $html );
-			
-		}
-		
-		return $html;
-		
-	}
+	// SHORTCODES
 	
-	/* !4. Add text after each item's content */
 	
-	// Register function
-	/*add_filter( 'the_content', 'ptbt_add_on_content' );
-	
-	function ptbt_add_on_content( $the_content ) {
-		
-		// Set initial value of $new_content variable to previous
-		// content
-		
-		$new_content = $the_content;
-		
-		// Append something to the content
-		
-		$new_content .= "<div class='alert alert-info'><h3>Info alert</h3></div>";
-		
-		return $new_content;
-		
-	}
-	*/
-	/* !5. Troubleshooting coding errors and printing variable content */
-	add_filter( 'wp_nav_menu_objects', 'ptbt_new_nav_menu_items', 10, 2 );
-	
-	function ptbt_new_nav_menu_items( $sorted_menu_items, $args ) {
-		
-		// Check IF user is logged in, continue if not logged in
-		
-		if( is_user_logged_in() == FALSE ) {
-			
-			// Loop through all menu items received
-			// Place each item's key in $key variable
-			
-			foreach ( $sorted_menu_items as $key => $sorted_menu_item ) {
-				
-				// Check IF menu title matches search string
-				if( 'Private Area' == $sorted_menu_item->title ) {
-					
-					// Remove item from menu array if found using item key
-					unset( $sorted_menu_items[ $key ] );
-					
-				}
-				
-			}
-			
-		}
-		
-		// Uncomment to see how the content of the variable is structured
-		// print_r( $sorted_menu_items );
-		return $sorted_menu_items;
-		
-	}
-	
-	/* !6. Create a shortcode to add Twitter link */
-	add_shortcode( 'tl', 'ptbt_twitter_link_shortcode' );
-	
-	function ptbt_twitter_link_shortcode( $atts ) {
-		
-		$output = '<a href="https://twitter.com/RKL15">';
-		
-		$output .= 'Twitter Feed</a>';
-		
-		return $output;
-		
-	}
-	
-	/* !7. Create a shortcode with parameters to add Twitter feed to a post or page */
-	add_shortcode( 'twitterfeed', 'ptbt_twitter_embed_shortcode' );
-	
-	// Shortcode implementation
-	function ptbt_twitter_embed_shortcode( $atts ) {
-		
-		extract( shortcode_atts( array( 
-			
-			'user_name' => 'RKL15' 
-			
-		), $atts ) );
-		
-		if ( !empty( $user_name ) ) {
-			
-			$output1 = '<a class="twitter-timeline" href="';
-			$output1 .= esc_url( 'https://twitter.com/'. $user_name );
-			$output1 .= '"Tweets by ' . esc_html( $user_name );
-			$output1 .= '</a><script async ';
-			$output1 .= 'src="//platform.twitter.com/widgets.js"';
-			$output1 .= ' charset="utf-8"></script>';
-		} else {
-			
-			$output1 = '';
-			
-		}
-		
-		return $output1;
-		
-	}
-	
-	/* !8. Create a new enclosing shortcode,eg make something private based on is user logged in */
-	add_shortcode( 'private', 'ptbt_private_shortcode' );
-	
-	function ptbt_private_shortcode( $atts, $content = null ) {
-		
-		if ( is_user_logged_in() ) {
-			
-			return '<div class"private">' . $content . '</div>';
-			
-		} else {
-			
-			
-			$output2 = '<div class="register">';
-			$output2 .= 'You need to become a member to access ';
-			$output2 .= 'this content.</div>';
-			
-			return $output2;
-			
-		}
-		
-	}
-	
-	/* !9. Add a stylesheet */
-	add_action( 'wp_enqueue_scripts', 'ptbt_add_css' );
-	
-	function ptbt_add_css() {
-		
-		wp_enqueue_style( 'privateshortcodestyle', plugins_url( 'awesomestylesheet.css', __FILE__ ) );
-		
-	}
+	// custom post type
+	// custom post type is set up in the init file - found in the includes folder
+	add_action( 'init', 'team_init' );

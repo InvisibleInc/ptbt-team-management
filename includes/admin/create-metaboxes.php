@@ -13,4 +13,14 @@
 				'high' // priority
 		);
 		
+		// set up metaboxes
+		add_meta_box(
+			'r_team_staff_mb', // id
+			__( 'Team Staff', 'team' ), // title of metabox
+				'r_team_staff_mb', // callback
+				'teams', // call/define the post type this metabox will appear in
+				'normal', // context - normal, side or advanced
+				'high' // priority
+		);
+		
 	}

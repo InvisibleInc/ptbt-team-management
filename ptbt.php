@@ -1,5 +1,5 @@
 <?php
-	
+
 /*
 Plugin Name: PtbT Team Management
 Plugin URi: http://pickthebestteam.com/team-management/
@@ -13,70 +13,25 @@ Text Domain: pick-the-best-team
 */
 
 
-/*
-	// Add filter structure
-	// add_filter( 'fitler hook', 'function name' );
-	add_filter ( 'the_title', 'ptbt_title' );
-	
-	// write function - $title is a wordpress variable
-	function ptbt_title( $title ){
-		
-		return 'This is an add filter hook: ' . $title;
-		
-	}
-	
-	// Add action structure
-	// add_action( 'wp_footer', 'ptbt_footer_shoutout' );
-	
-	// write function - this echos text to footer
-	function ptbt_footer_shoutout() {
-		
-		echo "Hooked example.";
-		
-	}
-		
-*/
-
-
 /* ! 0. TABLE OF CONTENTS */
 
 /*
-	01. Activation and security
-	
-	1. Add something to page_headers
-	
-	2. Add favicon feature
-	
-	3. Modify Site Generator meta tag
-	
-	4. Add text after each item's content
-	
-	5. Troubleshooting coding errors and printing variable content
-	
-	6. Create a shortcode to add Twitter link
-	
-	7. Create a shortcode with parameters to add Twitter feed to a post or page
-	
-	8. Create a new enclosing shortcode
-	
-	9. Add a stylesheet
-	
+	1. SETUP
+
+	2. INCLUDES
+
+	3. HOOKS
+
+	4. SHORTCODES
+
 */
 
-	/* !01. Activation and security  */
-	// Make sure we dont expose any info if called directly
-	//if( !function_exists( 'add_action' ) ) {
-		
-	//	die( "Hi there! I'm just a plugin, not much I can do when called directly.");
-		
-	//}
-	
-	
-	// SETUP
+	// !01. SETUP
 	// Create a CONSTANT for the plugin URL
 	define( 'TEAM_PLUGIN_URL', __FILE__ );
-	
-	// INCLUDES
+
+
+	// !02. INCLUDES
 	include( 'includes/activate.php' ); // activation and secure
 	include( 'includes/init.php' ); // add CPTs
 	// Include admin init file, used to define metaboxes, etc
@@ -85,9 +40,9 @@ Text Domain: pick-the-best-team
 	include( 'includes/process/save-post.php' );
 	// Include filter-content file
 	include( 'includes/process/filter-content.php' );
-	
-	
-	// HOOKS
+
+
+	// !03. HOOKS
 	// register activation - need to better understand this hook
 	register_activation_hook( __FILE__, 'ptbt_management_activate_plugin' );
 	// Add action hook called init - triggered when WP initialised the data required for the current page and it should be used to set up the plugin
@@ -97,14 +52,54 @@ Text Domain: pick-the-best-team
 	// Hook into when WP initialises the admin to define metaboxesadd metabox when WP initises the admin - in this example call the function team_admin_init - define function in /admin/init.php and include
 	add_action( 'admin_init', 'team_admin_init' );
 	// Add action Hook to save post - Create file in the process folder to set up save post
-	add_action( 'save_post_teams', 'r_save_post_admin', 10, 3 );
+	add_action( 'save_post_teams', 'ptbt_save_post_admin', 10, 3 );
 	// Add filter Hook to alter the content
-	add_filter( 'the_content', 'r_filter_team_content' );
-	
-	
-	// SHORTCODES
-	
-	
+	add_filter( 'the_content', 'ptbt_filter_team_content' );
+
+	// Add filter hook to add User Team to Add New User
+	//add_action( 'the_content', 'ptbt_new_user_assign_team' );
+	function custom_user_profile_fields($user){
+		$teams = wp_query = "SELECT * FROM ``"
+
+	?>
+		<h3>Extra profile information</h3>
+		<table class="form-table">
+		    <tr>
+		        <th><label for="team">Team Name</label></th>
+		        <td>
+		            <span class="description">Select Team</span>
+
+								<select name="team" id="team">
+									<option selected="selected" value="<?php echo esc_attr( get_the_author_meta( 'team', $user->ID ) ); ?>"><?php echo esc_attr( get_the_author_meta( 'team', $user->ID ) ); ?></option>
+									<option value="Team A">Team A</option>
+									<option value="Team B">Team B</option>
+									<option value="Team C">Team C</option>
+									<option value="Team D">Team D</option>
+									<option value="Team E">Team E</option>
+							</select>
+		        </td>
+		    </tr>
+		</table>
+  <?php
+	}
+	add_action( 'show_user_profile', 'custom_user_profile_fields' );
+	add_action( 'edit_user_profile', 'custom_user_profile_fields' );
+	add_action( "user_new_form", "custom_user_profile_fields" );
+
+	function save_custom_user_profile_fields($user_id){
+	    # again do this only if you can
+	    if(!current_user_can('manage_options'))
+	        return false;
+
+	    # save my custom field
+	    update_usermeta($user_id, 'team', $_POST['team']);
+	}
+	add_action('user_register', 'save_custom_user_profile_fields');
+	add_action('profile_update', 'save_custom_user_profile_fields');
+
+
+	// !04. SHORTCODES
+
 	// custom post type
 	// custom post type is set up in the init file - found in the includes folder
 	add_action( 'init', 'team_init' );

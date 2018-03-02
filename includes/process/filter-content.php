@@ -1,6 +1,6 @@
 <?php
 	
-	function r_filter_team_content( $content ){
+	function ptbt_filter_team_content( $content ){
 		
 		// This function will always apply to all post types - important to set what post type (teams) to which it applies.
 		if( !is_singular( 'teams') ){

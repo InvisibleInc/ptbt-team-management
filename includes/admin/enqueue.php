@@ -1,6 +1,6 @@
 <?php
 	// Create enqueue function
-	function r_admin_enqueue(){
+	function ptbt_admin_enqueue(){
 		// Use global variable $typenow to set it to current post type
 		global $typenow;
 		
